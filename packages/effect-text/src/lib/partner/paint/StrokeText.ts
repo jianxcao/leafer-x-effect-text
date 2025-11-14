@@ -1,5 +1,12 @@
-import type { ILeafPaint, ILeafStrokePaint, IStrokeAlign, ITextRowData, IUI } from '@leafer-ui/interface'
-import type { ILeaferCanvas, IRenderOptions } from '@leafer/interface'
+import type {
+  ILeaferCanvas,
+  ILeafPaint,
+  ILeafStrokePaint,
+  IRenderOptions,
+  IStrokeAlign,
+  ITextRowData,
+  IUI,
+} from '@leafer-ui/interface'
 
 import { isObject, LeafHelper, Paint, PaintImage } from '@leafer-ui/core'
 
@@ -43,16 +50,21 @@ function drawAlign(stroke: string | ILeafPaint[], align: IStrokeAlign, ui: IUI, 
 }
 
 export function drawTextStroke(ui: IUI, canvas: ILeaferCanvas, _renderOptions: IRenderOptions): void {
-  let row: ITextRowData; const data = ui.__.__textDrawData
+  let row: ITextRowData
+  const data = ui.__.__textDrawData
   const { rows, decorationY } = data
 
   for (let i = 0, len = rows.length; i < len; i++) {
     row = rows[i]
 
-    if (row.text)
+    if (row.text) {
       canvas.strokeText(row.text, row.x, row.y)
-    else if (row.data)
-      row.data.forEach((charData) => { canvas.strokeText(charData.char, charData.x, row.y) })
+    }
+    else if (row.data) {
+      row.data.forEach((charData) => {
+        canvas.strokeText(charData.char, charData.x, row.y)
+      })
+    }
   }
 
   if (decorationY) {
@@ -63,7 +75,8 @@ export function drawTextStroke(ui: IUI, canvas: ILeaferCanvas, _renderOptions: I
 
 export function drawStrokesStyle(strokes: ILeafStrokePaint[], strokeWidthScale: number, isText: boolean, ui: IUI, canvas: ILeaferCanvas, renderOptions: IRenderOptions): void {
   let item: ILeafStrokePaint
-  const data = ui.__; const { __hasMultiStrokeStyle } = data
+  const data = ui.__
+  const { __hasMultiStrokeStyle } = data
   __hasMultiStrokeStyle || canvas.setStroke(undefined, data.__strokeWidth * strokeWidthScale, data)
 
   for (let i = 0, len = strokes.length; i < len; i++) {

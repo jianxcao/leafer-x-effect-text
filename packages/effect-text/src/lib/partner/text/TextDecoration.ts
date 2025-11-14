@@ -3,7 +3,8 @@ import type { ITextData, ITextDecorationType, ITextDrawData } from '@leafer-ui/i
 import { ColorConvert, isObject } from '@leafer-ui/core'
 
 export function decorationText(drawData: ITextDrawData, style: ITextData): void {
-  let type: ITextDecorationType; let offset = 0
+  let type: ITextDecorationType
+  let offset = 0
   const { fontSize, textDecoration } = style
   drawData.decorationHeight = fontSize / 11
   if (isObject(textDecoration)) {

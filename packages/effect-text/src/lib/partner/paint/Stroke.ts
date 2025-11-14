@@ -1,5 +1,4 @@
-import type { ILeafPaint, IUI } from '@leafer-ui/interface'
-import type { ILeaferCanvas, IRenderOptions } from '@leafer/interface'
+import type { ILeaferCanvas, ILeafPaint, IRenderOptions, IUI } from '@leafer-ui/interface'
 
 import { isObject, LeafHelper, Paint } from '@leafer-ui/core'
 

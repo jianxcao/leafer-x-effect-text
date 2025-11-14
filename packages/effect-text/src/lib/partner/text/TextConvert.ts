@@ -14,7 +14,8 @@ export function getDrawData(content: string | number, style: ITextData): ITextDr
   if (!isString(content))
     content = String(content)
 
-  let x = 0; let y = 0
+  let x = 0
+  let y = 0
 
   let width = style.__getInput('width') || 0
   let height = style.__getInput('height') || 0
@@ -22,15 +23,23 @@ export function getDrawData(content: string | number, style: ITextData): ITextDr
   const { __padding: padding } = style
 
   if (padding) {
-    if (width)
-      x = padding[left], width -= (padding[right] + padding[left]), !width && (width = 0.01) // 防止变为自动宽度
-    else if (!style.autoSizeAlign)
+    if (width) {
       x = padding[left]
+      width -= (padding[right] + padding[left])
+      !width && (width = 0.01) // 防止变为自动宽度
+    }
+    else if (!style.autoSizeAlign) {
+      x = padding[left]
+    }
 
-    if (height)
-      y = padding[top], height -= (padding[top] + padding[bottom]), !height && (height = 0.01)
-    else if (!style.autoSizeAlign)
+    if (height) {
       y = padding[top]
+      height -= (padding[top] + padding[bottom])
+      !height && (height = 0.01)
+    }
+    else if (!style.autoSizeAlign) {
+      y = padding[top]
+    }
   }
 
   const drawData: ITextDrawData = {
@@ -62,15 +71,21 @@ export function getDrawData(content: string | number, style: ITextData): ITextDr
 function padAutoText(padding: number[], drawData: ITextDrawData, style: ITextData, width: number, height: number): void {
   if (!width && style.autoSizeAlign) {
     switch (style.textAlign) {
-      case 'left': offsetText(drawData, 'x', padding[left]); break
-      case 'right': offsetText(drawData, 'x', -padding[right])
+      case 'left':
+        offsetText(drawData, 'x', padding[left])
+        break
+      case 'right':
+        offsetText(drawData, 'x', -padding[right])
     }
   }
 
   if (!height && style.autoSizeAlign) {
     switch (style.verticalAlign) {
-      case 'top': offsetText(drawData, 'y', padding[top]); break
-      case 'bottom': offsetText(drawData, 'y', -padding[bottom])
+      case 'top':
+        offsetText(drawData, 'y', padding[top])
+        break
+      case 'bottom':
+        offsetText(drawData, 'y', -padding[bottom])
     }
   }
 }

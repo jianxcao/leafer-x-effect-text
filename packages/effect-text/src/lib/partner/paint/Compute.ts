@@ -1,14 +1,36 @@
-import type { IBooleanMap, ILeafPaint, IObject, IPaint, IPaintAttr, IRGB, IStrokeComputedStyle, IUI } from '@leafer-ui/interface'
+import type {
+  IBooleanMap,
+  ILeafPaint,
+  IObject,
+  IPaint,
+  IPaintAttr,
+  IRGB,
+  IStrokeComputedStyle,
+  IUI,
+} from '@leafer-ui/interface'
 
-import { ColorConvert, DataHelper, isArray, isObject, isString, isUndefined, PaintGradient, PaintImage } from '@leafer-ui/core'
+import {
+  ColorConvert,
+  DataHelper,
+  isArray,
+  isObject,
+  isString,
+  isUndefined,
+  PaintGradient,
+  PaintImage,
+} from '@leafer-ui/core'
 
 let recycleMap: IBooleanMap
-const { stintSet } = DataHelper; const { hasTransparent } = ColorConvert
+const { stintSet } = DataHelper
+const { hasTransparent } = ColorConvert
 
 export function compute(attrName: IPaintAttr, ui: IUI): void {
-  const data = ui.__; const leafPaints: ILeafPaint[] = []
+  const data = ui.__
+  const leafPaints: ILeafPaint[] = []
 
-  let paints: IPaint[] = data.__input[attrName]; let isAlphaPixel: boolean; let isTransparent: boolean
+  let paints: IPaint[] = data.__input[attrName]
+  let isAlphaPixel: boolean
+  let isTransparent: boolean
   if (!isArray(paints))
     paints = [paints]
 
@@ -73,10 +95,11 @@ function getLeafPaint(attrName: string, paint: IPaint, ui: IUI): ILeafPaint {
     case 'angular':
       leafPaint = PaintGradient.conicGradient(paint, boxBounds)
       break
-    case 'solid':
+    case 'solid': {
       const { type, color, opacity } = paint
       leafPaint = { type, style: ColorConvert.string(color, opacity) }
       break
+    }
     default:
       if (!isUndefined((paint as IRGB).r))
         leafPaint = { type: 'solid', style: ColorConvert.string(paint) }

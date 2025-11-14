@@ -1,6 +1,5 @@
-import type { IImagePaint, ILeafPaint, IUI } from '@leafer-ui/interface'
+import type { IImagePaint, ILeaferCanvas, ILeafPaint, IRenderOptions, IUI } from '@leafer-ui/interface'
 
-import type { ILeaferCanvas, IRenderOptions } from '@leafer/interface'
 import { Paint, PaintImage } from '@leafer-ui/core'
 
 export function fill(fill: string, ui: IUI, canvas: ILeaferCanvas, renderOptions: IRenderOptions): void {
@@ -11,7 +10,8 @@ export function fill(fill: string, ui: IUI, canvas: ILeaferCanvas, renderOptions
 export function fills(fills: ILeafPaint[], ui: IUI, canvas: ILeaferCanvas, renderOptions: IRenderOptions): void {
   let item: ILeafPaint, originPaint: IImagePaint, countImage: number
   for (let i = 0, len = fills.length; i < len; i++) {
-    item = fills[i], originPaint = item.originPaint as IImagePaint
+    item = fills[i]
+    originPaint = item.originPaint as IImagePaint
 
     if (item.image) {
       countImage ? countImage++ : countImage = 1

@@ -12,11 +12,19 @@ export function layoutChar(drawData: ITextDrawData, style: ITextData, width: num
   const justify = justifyLast || (width && textAlign.includes('justify')) // 是否两端对齐文本
   const justifyLetter = justify && textAlign.includes('letter') // 英文是否通过加大字符间距两端对齐
 
-  let charX: number, remainingWidth: number, addWordWidth: number, addLetterWidth: number, indentWidth: number, mode: number, wordChar: ITextCharData, wordsLength: number, isLastWord: boolean, canJustify: boolean
+  let charX: number, remainingWidth: number, addWordWidth: number, addLetterWidth: number, indentWidth: number,
+    mode: number, wordChar: ITextCharData, wordsLength: number, isLastWord: boolean, canJustify: boolean
 
   rows.forEach((row) => {
     if (row.words) {
-      indentWidth = paraIndent && row.paraStart ? paraIndent : 0, wordsLength = row.words.length
+      if (paraIndent && row.paraStart) {
+        indentWidth = paraIndent
+      }
+      else {
+        indentWidth = 0
+        wordsLength = row.words.length
+      }
+
       if (justify) {
         canJustify = !row.paraEnd || justifyLast
         remainingWidth = width - row.width - indentWidth
@@ -52,8 +60,10 @@ export function layoutChar(drawData: ITextDrawData, style: ITextData, width: num
             isLastWord = index === wordsLength - 1
 
             if (addWordWidth) {
-              if (!isLastWord)
-                charX += addWordWidth, row.width += addWordWidth
+              if (!isLastWord) {
+                charX += addWordWidth
+                row.width += addWordWidth
+              }
             }
             else if (addLetterWidth) {
               row.width += addLetterWidth * (word.data.length - (isLastWord ? 1 : 0))

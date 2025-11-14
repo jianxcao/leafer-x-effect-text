@@ -10,8 +10,12 @@ const { trimRight } = TextRowHelper
 const { Letter, Single, Before, After, Symbol, Break } = CharType
 
 let word: ITextWordData, row: ITextRowData, wordWidth: number, rowWidth: number, realWidth: number
-let char: string, charWidth: number, startCharSize: number, charSize: number, charType: CharType, lastCharType: CharType, langBreak: boolean, afterBreak: boolean, paraStart: boolean
-let textDrawData: ITextDrawData; let rows: ITextRowData[] = []; let bounds: IBoundsData; let findMaxWidth: boolean
+let char: string, charWidth: number, startCharSize: number, charSize: number, charType: CharType,
+  lastCharType: CharType, langBreak: boolean, afterBreak: boolean, paraStart: boolean
+let textDrawData: ITextDrawData
+let rows: ITextRowData[] = []
+let bounds: IBoundsData
+let findMaxWidth: boolean
 
 export function createRows(drawData: ITextDrawData, content: string, style: ITextData): void {
   textDrawData = drawData
@@ -20,7 +24,8 @@ export function createRows(drawData: ITextDrawData, content: string, style: ITex
   findMaxWidth = !bounds.width && !style.autoSizeAlign
 
   const { __letterSpacing, paraIndent, textCase } = style
-  const { canvas } = Platform; const { width } = bounds
+  const { canvas } = Platform
+  const { width } = bounds
 
   if (style.__isCharMode) {
     const wrap = style.textWrap !== 'none'
@@ -29,7 +34,8 @@ export function createRows(drawData: ITextDrawData, content: string, style: ITex
     paraStart = true
     lastCharType = null
     startCharSize = charWidth = charSize = wordWidth = rowWidth = 0
-    word = { data: [] }, row = { words: [] }
+    word = { data: [] }
+    row = { words: [] }
 
     if (__letterSpacing)
       content = [...content] as any // 防止切分表情等多个字符组成的字符，转成数组字符是最安全的
@@ -72,7 +78,7 @@ export function createRows(drawData: ITextDrawData, content: string, style: ITex
           }
           else {
             if (!afterBreak)
-              afterBreak = charType === Letter && lastCharType == After // split ，S
+              afterBreak = charType === Letter && lastCharType === After // split ，S
 
             if (langBreak || afterBreak || charType === Break || charType === Before || charType === Single || (wordWidth + charWidth > realWidth)) {
               if (wordWidth)

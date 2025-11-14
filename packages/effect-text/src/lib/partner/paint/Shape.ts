@@ -1,5 +1,4 @@
-import type { ICachedShape, IUI } from '@leafer-ui/interface'
-import type { IBoundsData, ILeaferCanvas, IMatrix, IRenderOptions } from '@leafer/interface'
+import type { IBoundsData, ICachedShape, ILeaferCanvas, IMatrix, IRenderOptions, IUI } from '@leafer-ui/interface'
 
 import { BoundsHelper, FourNumberHelper, Matrix, Platform } from '@leafer-ui/core'
 
@@ -8,12 +7,15 @@ const tempBounds = {} as IBoundsData
 
 export function shape(ui: IUI, current: ILeaferCanvas, options: IRenderOptions): ICachedShape {
   const canvas = current.getSameCanvas()
-  const currentBounds = current.bounds; const nowWorld = ui.__nowWorld; const layout = ui.__layout
+  const currentBounds = current.bounds
+  const nowWorld = ui.__nowWorld
+  const layout = ui.__layout
   const nowWorldShapeBounds = ui.__nowWorldShapeBounds || (ui.__nowWorldShapeBounds = {} as IBoundsData)
 
   toOuterOf(layout.strokeSpread ? (copyAndSpread(tempBounds, layout.boxBounds, layout.strokeSpread), tempBounds) : layout.boxBounds, nowWorld, nowWorldShapeBounds)
 
-  let bounds: IBoundsData, renderBounds: IBoundsData, matrix: IMatrix, fitMatrix: IMatrix, shapeBounds: IBoundsData, worldCanvas: ILeaferCanvas
+  let bounds: IBoundsData, renderBounds: IBoundsData, matrix: IMatrix, fitMatrix: IMatrix, shapeBounds: IBoundsData,
+    worldCanvas: ILeaferCanvas
 
   let { scaleX, scaleY } = ui.getRenderScaleData(true)
 
