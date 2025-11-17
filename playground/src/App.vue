@@ -2,12 +2,12 @@
 import {onMounted} from 'vue'
 import '@leafer-in/editor'
 import '@lx/effect-text-editor'
-import {App, UICreator} from "leafer-ui";
-import {EffectText} from "@lx/effect-text";
+import {App, Debug} from "leafer-ui";
+import {EffectText} from "@lx/effect-text"
 
 let leaferApp: App
-// Debug.showBounds = 'hit'
-console.log(UICreator.list);
+Debug.showBounds = 'hit'
+// console.log(UICreator.list);
 
 function initLeafer() {
 
@@ -15,66 +15,119 @@ function initLeafer() {
     view: 'leafer-app',
     width: 1200,
     height: 600,
-    editor: {},
+    editor: {
+      editSize: 'size',
+      point: {
+        editConfig: {editSize: 'font-size'},
+      }
+    },
   })
 
-  const baseFill = {
-    type: 'linear',
-    color: '#000000',
-    visible: true,
-    from: { x: 0, y: 0.5, type: 'percent' },
-    to: { x: 1, y: 0.5, type: 'percent' },
-    stops: [
-      { offset: 0, color: 'rgb(248, 54, 0)' },
-      { offset: 1, color: 'rgb(250, 204, 34)' },
+  const et = new EffectText({
+    text: '特效文字',
+    fontSize: 36,
+    x: 100,
+    y: 120,
+    editable: true,
+    fill: {
+      "type": "linear",
+      "color": "#000000",
+      "visible": true,
+      "from": {
+        "x": 0,
+        "y": 0.5,
+        "type": "percent"
+      },
+      "to": {
+        "x": 1,
+        "y": 0.5,
+        "type": "percent"
+      },
+      "stops": [
+        {
+          "offset": 0,
+          "color": "rgb(248, 54, 0)"
+        },
+        {
+          "offset": 1,
+          "color": "rgb(250, 204, 34)"
+        }
+      ],
+    },
+    textEffects: [
+      {
+        visible: true,
+        fill: {
+          "type": "linear",
+          "color": "#000000",
+          "visible": true,
+          "from": {
+            "x": 0,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "to": {
+            "x": 1,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "stops": [
+            {
+              "offset": 0,
+              "color": "rgb(248, 54, 0)"
+            },
+            {
+              "offset": 1,
+              "color": "rgb(250, 204, 34)"
+            }
+          ],
+          "offset": {
+            "visible": true,
+            "x": 0,
+            "y": 10
+          }
+        },
+        stroke: {
+          "type": "solid",
+          "color": "rgba(255, 255, 255, 1)",
+          "visible": true,
+          "style": {
+            "strokeJoin": "round",
+            "strokeWidth": 3
+          }
+        },
+        offset: {
+          visible: true,
+          x: 0,
+          y: 10
+        }
+      },
+      {
+        visible: true,
+        fill: {
+          "type": "solid",
+          "color": "#000",
+          "visible": true,
+        },
+        stroke: {
+          "type": "solid",
+          "color": "rgba(255, 255, 255, 1)",
+          "visible": true,
+          "style": {
+            "strokeJoin": "round",
+          }
+        },
+        offset: {
+          visible: true,
+          x: 0,
+          y: -10
+        }
+      },
     ],
-  }
-
-  const tX = new EffectText({
-    text: 'mode: x',
-    fontSize: 36,
-    x: 100,
-    y: 120,
-    fill: baseFill,
-    writingMode: 'x',
-    editable: true,
   })
 
-  const tXr = new EffectText({
-    text: 'mode: x-reverse',
-    fontSize: 36,
-    x: 100,
-    y: 200,
-    fill: baseFill,
-    writingMode: 'x-reverse',
-    editable: true,
-  })
-
-  const tY = new EffectText({
-    text: 'mode: y',
-    fontSize: 36,
-    x: 500,
-    y: 120,
-    fill: baseFill,
-    writingMode: 'y',
-    editable: true,
-  })
-
-  const tYr = new EffectText({
-    text: 'mode: y-reverse',
-    fontSize: 36,
-    x: 800,
-    y: 120,
-    fill: baseFill,
-    writingMode: 'y-reverse',
-    editable: true,
-  })
-
-  leaferApp.tree.add(tX)
-  leaferApp.tree.add(tXr)
-  leaferApp.tree.add(tY)
-  leaferApp.tree.add(tYr)
-  console.log(tX.toJSON(), tXr.toJSON(), tY.toJSON(), tYr.toJSON())
+  leaferApp.tree.add(et)
+  console.log(et, et.toJSON())
 
   ;(window as any).app = leaferApp
 }
