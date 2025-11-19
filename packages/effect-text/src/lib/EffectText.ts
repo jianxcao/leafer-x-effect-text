@@ -24,21 +24,21 @@ import {
 
 // ==================== Types ====================
 
-type IEnable<T> = T & {
+export type IEnable<T> = T & {
   visible?: boolean
 }
 
-type ITextEffect = IEnable<{
+export type ITextEffect = IEnable<{
   offset?: IEnable<IPointData>
   stroke?: IEnable<IStrokePaint>
   fill?: IEnable<IPaint>
 }>
 
-interface IEffectTextAttrData {
+export interface IEffectTextAttrData {
   textEffects?: ITextEffect[]
 }
 
-interface IEffectTextData extends ITextStyleComputedData, IUIData {
+export interface IEffectTextData extends ITextStyleComputedData, IUIData {
   _textEffects?: ITextEffect[]
   __effectTextGroup?: IText[]
   __baseSize?: { width: number, height: number, fontSize: number }
@@ -46,20 +46,20 @@ interface IEffectTextData extends ITextStyleComputedData, IUIData {
   _updateEffectPositions: () => void
 }
 
-interface IEffectText extends IEffectTextAttrData, ITextStyleAttrData, IUI {
+export interface IEffectText extends IEffectTextAttrData, ITextStyleAttrData, IUI {
   __: IEffectTextData
   textEffects?: ITextEffect[]
   __effectTextGroup?: IText[]
 }
 
-interface IEffectTextInputData extends IEffectTextAttrData, ITextInputData {
+export interface IEffectTextInputData extends IEffectTextAttrData, ITextInputData {
   textEffects?: ITextEffect[]
 }
 
 // ==================== Constants ====================
 
-const DEFAULT_FONT_SIZE = 12
-const IGNORE_SYNC_KEYS = [
+export const DEFAULT_FONT_SIZE = 12
+export const IGNORE_SYNC_KEYS = [
   'tag',
   'textEffects',
   'fill',
@@ -76,8 +76,8 @@ const IGNORE_SYNC_KEYS = [
 
 // ==================== Helper Functions ====================
 
-function isVisible(item?: { visible?: boolean }): boolean {
-  return item?.visible !== false
+function isVisible(item?: any): boolean {
+  return item?.visible !== false && item?.visible !== 0
 }
 
 function getOffsetValue(offset?: IEnable<IPointData>): { x: number, y: number } {
@@ -108,7 +108,7 @@ function calculateDirectionSpread(offset: number, strokeSpread: number): { posit
 
 // ==================== Data Class ====================
 
-class EffectTextData extends TextData implements IEffectTextData {
+export class EffectTextData extends TextData implements IEffectTextData {
   _textEffects?: ITextEffect[]
   __effectTextGroup: IText[]
   __baseSize?: { width: number, height: number, fontSize: number }
@@ -117,22 +117,16 @@ class EffectTextData extends TextData implements IEffectTextData {
   setTextEffects(value: ITextEffect[]) {
     const mainText = this.__leaf as IEffectText
 
-    this._clearPreviousEffects(mainText)
-
     if (value?.length) {
       this._recordBaseMetrics(mainText)
       this._recordOriginalOffsets(value)
-      this._createEffectTexts(mainText, value)
+      this._updateOrCreateEffectTexts(mainText, value)
+    }
+    else {
+      this._clearAllEffects(mainText)
     }
 
     this._textEffects = value
-  }
-
-  private _clearPreviousEffects(mainText: IEffectText) {
-    if (this.__effectTextGroup?.length) {
-      this.__effectTextGroup.forEach(t => t.visible = 0)
-      this.__effectTextGroup = mainText.__effectTextGroup = null
-    }
   }
 
   private _recordBaseMetrics(mainText: IEffectText) {
@@ -148,11 +142,14 @@ class EffectTextData extends TextData implements IEffectTextData {
     this.__originalOffsets = effects.map(v => getOffsetValue(v.offset))
   }
 
-  private _createEffectTexts(mainText: IEffectText, effects: ITextEffect[]) {
+  private _updateOrCreateEffectTexts(mainText: IEffectText, effects: ITextEffect[]) {
     const baseProps = mainText.toJSON() as IEffectText
     delete baseProps.textEffects
 
-    const group = effects.map((effect) => {
+    const existingGroup = this.__effectTextGroup || []
+    const newGroup: IText[] = []
+
+    effects.forEach((effect, index) => {
       const offset = getOffsetValue(effect.offset)
       const props: IUIInputData = {
         ...baseProps,
@@ -167,10 +164,31 @@ class EffectTextData extends TextData implements IEffectTextData {
         props.stroke = effect.stroke
       }
 
-      return UICreator.get('Text', props) as IText
+      // 复用现有元素或创建新元素
+      let text = existingGroup[index]
+      if (text) {
+        text.set(props)
+      }
+      else {
+        text = UICreator.get('Text', props) as IText
+      }
+
+      newGroup.push(text)
     })
 
-    mainText.__effectTextGroup = this.__effectTextGroup = group
+    // 隐藏多余的元素
+    for (let i = effects.length; i < existingGroup.length; i++) {
+      existingGroup[i].visible = 0
+    }
+
+    mainText.__effectTextGroup = this.__effectTextGroup = newGroup
+  }
+
+  private _clearAllEffects(mainText: IEffectText) {
+    if (this.__effectTextGroup?.length) {
+      this.__effectTextGroup.forEach(t => t.visible = 0)
+      this.__effectTextGroup = mainText.__effectTextGroup = []
+    }
   }
 
   _updateEffectPositions() {
@@ -270,6 +288,8 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
     super.__draw(canvas, options, originCanvas)
 
     this._forEachEffect((text) => {
+      if (!isVisible(text))
+        return
       text.__updateWorldMatrix()
       canvas.setWorld(text.__nowWorld = text.__getNowWorld(options))
       text.__draw(canvas, options, originCanvas)
