@@ -72,6 +72,10 @@ export const IGNORE_SYNC_KEYS = [
   'scaleY',
   'rotation',
   'textEditing',
+  'editable',
+  'id',
+  'states',
+  'data',
 ]
 
 // ==================== Helper Functions ====================
@@ -104,6 +108,16 @@ function calculateDirectionSpread(offset: number, strokeSpread: number): { posit
   else {
     return { positive: strokeSpread, negative: strokeSpread }
   }
+}
+
+function omitKeys(obj: any, keys: string[]) {
+  const newObj: any = {}
+  for (const key in obj) {
+    if (!keys.includes(key)) {
+      newObj[key] = obj[key]
+    }
+  }
+  return newObj
 }
 
 // ==================== Data Class ====================
@@ -143,37 +157,26 @@ export class EffectTextData extends TextData implements IEffectTextData {
   }
 
   private _updateOrCreateEffectTexts(mainText: IEffectText, effects: ITextEffect[]) {
-    const baseProps = mainText.toJSON() as IEffectText
-    delete baseProps.textEffects
-
     const existingGroup = this.__effectTextGroup || []
-    const newGroup: IText[] = []
 
-    effects.forEach((effect, index) => {
+    const newGroup: IText[] = effects.map((effect, index) => {
       const offset = getOffsetValue(effect.offset)
-      const props: IUIInputData = {
-        ...baseProps,
+      const { fill, stroke } = effect
+      const inputData: IUIInputData = {
+        fill,
+        stroke,
         ...offset,
-        visible: effect.visible,
+        visible: isVisible(effect),
       }
-
-      if (isVisible(effect.fill)) {
-        props.fill = effect.fill
-      }
-      if (isVisible(effect.stroke)) {
-        props.stroke = effect.stroke
-      }
-
       // 复用现有元素或创建新元素
       let text = existingGroup[index]
       if (text) {
-        text.set(props)
+        text.set(inputData)
       }
       else {
-        text = UICreator.get('Text', props) as IText
+        text = UICreator.get('Text', inputData) as IText
       }
-
-      newGroup.push(text)
+      return text
     })
 
     // 隐藏多余的元素
@@ -248,17 +251,8 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
     this.__effectTextGroup?.forEach(callback)
   }
 
-  protected _syncEffectProperties(): IUIInputData {
-    const data = this.toJSON()
-    return Object.keys(data).reduce((props, key) => {
-      if (!IGNORE_SYNC_KEYS.includes(key)) {
-        props[key] = data[key]
-      }
-      return props
-    }, {} as IUIInputData)
-  }
-
   protected _updateEffectText(text: Text): void {
+    text.__updateWorldOpacity()
     text.__onUpdateSize()
     text.__updateChange()
     text.__updateLocalMatrix()
@@ -268,7 +262,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
   }
 
   override __updateChange(): void {
-    const syncProps = this._syncEffectProperties()
+    const syncProps = omitKeys(this.toJSON(), IGNORE_SYNC_KEYS)
 
     super.__updateChange()
 
@@ -288,17 +282,13 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
     super.__draw(canvas, options, originCanvas)
 
     this._forEachEffect((text) => {
-      if (!isVisible(text))
+      this._updateEffectText(text)
+      if (!isVisible(text)) {
         return
-      text.__updateWorldMatrix()
+      }
       canvas.setWorld(text.__nowWorld = text.__getNowWorld(options))
       text.__draw(canvas, options, originCanvas)
     })
-  }
-
-  override __render(canvas: ILeaferCanvas, options: IRenderOptions) {
-    super.__render(canvas, options)
-    this._forEachEffect(text => text.__render(canvas, options))
   }
 
   override __updateRenderSpread(): IFourNumber {
@@ -317,7 +307,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
 
       const { x: offsetX, y: offsetY } = getOffsetValue(effect.offset)
       const strokeWidth = getStrokeWidth(effect.stroke)
-      const strokeSpread = strokeWidth / 2
+      const strokeSpread = strokeWidth * 2
 
       const horizontalSpread = calculateDirectionSpread(offsetX, strokeSpread)
       const verticalSpread = calculateDirectionSpread(offsetY, strokeSpread)

@@ -29,38 +29,145 @@ function initLeafer() {
   })
 
   const et = new EffectText({
-    text: '多层特效',
-    fontSize: 72,
-    fill: '#ff4400',
-    textEffects: [
-      // 底层阴影
+    "textEffects": [
       {
-        visible: true,
-        offset: {x: 5, y: 5},
-        fill: 'rgba(0, 0, 0, 0.5)'
-      },
-      // 外描边
-      {
-        visible: true,
-        offset: {x: 0, y: 0},
-        stroke: {
-          type: 'solid',
-          color: '#ffffff',
-          style: {strokeWidth: 8}
+        "fill": {
+          "type": "solid",
+          "color": "#000",
+          "visible": false
+        },
+        "stroke": {
+          "type": "linear",
+          "color": "rgba(255, 255, 255, 1)",
+          "visible": true,
+          "style": {
+            "strokeWidth": 10,
+            "strokeJoin": "round"
+          },
+          "from": {
+            "x": 0,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "to": {
+            "x": 1,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "stops": [
+            {
+              "offset": 0,
+              "color": "rgb(252, 92, 125)"
+            },
+            {
+              "offset": 1,
+              "color": "rgb(255, 251, 213)"
+            }
+          ]
+        },
+        "visible": true,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "visible": true
         }
       },
-      // 内描边
       {
-        visible: true,
-        offset: {x: 0, y: 0},
-        stroke: {
-          type: 'solid',
-          color: '#000000',
-          style: {strokeWidth: 4}
+        "fill": {
+          "type": "solid",
+          "color": "rgba(209, 209, 209, 1)",
+          "visible": false
+        },
+        "stroke": {
+          "type": "solid",
+          "color": "#000",
+          "visible": true,
+          "style": {
+            "strokeWidth": 5,
+            "strokeJoin": "round",
+            "dashPattern": [
+              10,
+              1
+            ]
+          }
+        },
+        "visible": true,
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "visible": true
         }
+      },
+      {
+        "fill": {
+          "type": "linear",
+          "color": "rgba(223, 22, 22, 1)",
+          "visible": true,
+          "from": {
+            "x": 0,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "to": {
+            "x": 1,
+            "y": 0.5,
+            "type": "percent"
+          },
+          "stops": [
+            {
+              "offset": 0,
+              "color": "rgb(30, 150, 0)"
+            },
+            {
+              "offset": 0.51,
+              "color": "rgb(255, 242, 0)"
+            },
+            {
+              "offset": 1,
+              "color": "rgb(243, 41, 53)"
+            }
+          ]
+        },
+        "stroke": {
+          "type": "solid",
+          "color": "rgba(255, 255, 255, 1)",
+          "visible": true,
+          "style": {
+            "strokeWidth": 2,
+            "strokeJoin": "round"
+          }
+        },
+        "offset": {
+          "x": 0,
+          "y": 0,
+          "visible": true
+        },
+        "visible": true
       }
     ],
-    editable: true,
+    "width": 786.0278341182664,
+    "height": 138.84994696510677,
+    "text": "双击编辑一小段正文",
+    fill: "#f40",
+    "fontSize": 79.4,
+    "fontWeight": 400,
+    "italic": false,
+    "textDecoration": "under",
+    "lineHeight": {
+      "type": "percent",
+      "value": 1
+    },
+    "textAlign": "center",
+    "verticalAlign": "middle",
+    "opacity": 1,
+    "x": 169.48608294086665,
+    "y": 215.57502651744667,
+    "scaleX": 1,
+    "scaleY": 1,
+    "rotation": 0,
+    "skewX": 0,
+    "skewY": 0,
+    "editable": true,
   })
 
   leaferApp.tree.add(et)
@@ -84,6 +191,18 @@ function handleDebug() {
   Debug.enable = !Debug.enable
   Debug.showBounds = Debug.enable ? 'hit' : false
 }
+function getRandom(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+function handleChangeOffest() {
+  const text = leaferApp.tree.children[0] as EffectText
+  const x = getRandom(0, 100)
+  const y = getRandom(0, 100)
+  text.textEffects = text.textEffects.map(v => {
+    v.offset = {visible: true, x, y}
+    return v
+  })
+}
 </script>
 
 <template>
@@ -95,6 +214,7 @@ function handleDebug() {
         <NButton @click="handleDebug"> Debug </NButton>
         <NButton @click="handleExport">导出图片</NButton>
         <NButton @click="handleExport2">导出JSON（见console）</NButton>
+        <NButton @click="handleChangeOffest">随机特效偏移</NButton>
       </NFlex>
     </NFlex>
   </NFlex>
