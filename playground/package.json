@@ -13,8 +13,11 @@
   },
   "devDependencies": {
     "@leafer-in/editor": "^1.10.1",
+    "@leafer-in/export": "^1.10.1",
+    "@leafer-in/text-editor": "^1.10.1",
+    "@leafer-in/view": "^1.10.1",
+    "@leafer-in/viewport": "^1.10.1",
     "@lx/effect-text": "workspace:*",
-    "@lx/effect-text-editor": "workspace:*",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^24.3.1",
     "@vitejs/plugin-vue": "^6.0.1",

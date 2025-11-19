@@ -1,4 +1,5 @@
 import type {
+  IFourNumber,
   ILeaferCanvas,
   IPaint,
   IPointData,
@@ -11,15 +12,24 @@ import type {
   IUI,
   IUIBaseInputData,
   IUIData,
+  IUIInputData,
 } from '@leafer-ui/interface'
-import { boundsType, dataProcessor, registerUI, Text, TextData, UICreator } from '@leafer-ui/core'
+import {
+  boundsType,
+  dataProcessor,
+  registerUI,
+  Text,
+  TextData,
+  UICreator,
+} from '@leafer-ui/core'
+
+// ==================== Types ====================
 
 type IEnable<T> = T & {
-  visible: boolean
+  visible?: boolean
 }
 
 type ITextEffect = IEnable<{
-  enable?: boolean
   offset?: IEnable<IPointData>
   stroke?: IEnable<IStrokePaint>
   fill?: IEnable<IPaint>
@@ -31,8 +41,10 @@ interface IEffectTextAttrData {
 
 interface IEffectTextData extends ITextStyleComputedData, IUIData {
   _textEffects?: ITextEffect[]
-
   __effectTextGroup?: IText[]
+  __baseSize?: { width: number, height: number, fontSize: number }
+  __originalOffsets?: Array<{ x: number, y: number }>
+  _updateEffectPositions: () => void
 }
 
 interface IEffectText extends IEffectTextAttrData, ITextStyleAttrData, IUI {
@@ -45,49 +57,156 @@ interface IEffectTextInputData extends IEffectTextAttrData, ITextStyleInputData,
   textEffects?: ITextEffect[]
 }
 
+// ==================== Constants ====================
+
+const DEFAULT_FONT_SIZE = 12
+const IGNORE_SYNC_KEYS = [
+  'tag',
+  'textEffects',
+  'fill',
+  'stroke',
+  'x',
+  'y',
+  'skew',
+  'scale',
+  'scaleX',
+  'scaleY',
+  'rotation',
+  'textEditing',
+]
+
+// ==================== Helper Functions ====================
+
+function isVisible(item?: { visible?: boolean }): boolean {
+  return item?.visible !== false
+}
+
+function getOffsetValue(offset?: IEnable<IPointData>): { x: number, y: number } {
+  if (!offset || !isVisible(offset)) {
+    return { x: 0, y: 0 }
+  }
+  return { x: offset.x || 0, y: offset.y || 0 }
+}
+
+function getStrokeWidth(stroke?: IEnable<IStrokePaint>): number {
+  if (!stroke || !isVisible(stroke)) {
+    return 0
+  }
+  return (stroke as any).style?.strokeWidth || 0
+}
+
+function calculateDirectionSpread(offset: number, strokeSpread: number): { positive: number, negative: number } {
+  if (offset < 0) {
+    return { positive: 0, negative: Math.abs(offset) + strokeSpread }
+  }
+  else if (offset > 0) {
+    return { positive: offset + strokeSpread, negative: 0 }
+  }
+  else {
+    return { positive: strokeSpread, negative: strokeSpread }
+  }
+}
+
+// ==================== Data Class ====================
+
 class EffectTextData extends TextData implements IEffectTextData {
   _textEffects?: ITextEffect[]
-
   __effectTextGroup: IText[]
+  __baseSize?: { width: number, height: number, fontSize: number }
+  __originalOffsets?: Array<{ x: number, y: number }>
 
   setTextEffects(value: ITextEffect[]) {
-    const ui = this.__leaf as IEffectText
-    const prev = this.__effectTextGroup
-    if (prev && prev.length) {
-      prev.forEach(t => t.destroy())
-      this.__effectTextGroup = ui.__effectTextGroup = null
-    }
+    const mainText = this.__leaf as IEffectText
 
-    if (value && value.length) {
-      const base = ui.toJSON() as IEffectText
-      delete base.textEffects
+    this._clearPreviousEffects(mainText)
 
-      const group = value.map((v) => {
-        const pos = (v.offset && v.offset.visible !== false)
-          ? {
-              x: base.x + (v.offset.x || 0),
-              y: base.y + (v.offset.y || 0),
-            }
-          : {
-              x: base.x,
-              y: base.y,
-            }
-
-        const props: any = { ...base, ...pos, visible: v.visible }
-        if (v.fill && v.fill.visible !== false)
-          props.fill = v.fill
-        if (v.stroke && v.stroke.visible !== false)
-          props.stroke = v.stroke
-
-        return UICreator.get('Text', props) as IText
-      })
-
-      ui.__effectTextGroup = this.__effectTextGroup = group
+    if (value?.length) {
+      this._recordBaseMetrics(mainText)
+      this._recordOriginalOffsets(value)
+      this._createEffectTexts(mainText, value)
     }
 
     this._textEffects = value
   }
+
+  private _clearPreviousEffects(mainText: IEffectText) {
+    if (this.__effectTextGroup?.length) {
+      this.__effectTextGroup.forEach(t => t.visible = 0)
+      this.__effectTextGroup = mainText.__effectTextGroup = null
+    }
+  }
+
+  private _recordBaseMetrics(mainText: IEffectText) {
+    const boxBounds = mainText.__layout?.boxBounds
+    this.__baseSize = {
+      width: mainText.width || boxBounds?.width || 0,
+      height: mainText.height || boxBounds?.height || 0,
+      fontSize: mainText.fontSize || DEFAULT_FONT_SIZE,
+    }
+  }
+
+  private _recordOriginalOffsets(effects: ITextEffect[]) {
+    this.__originalOffsets = effects.map(v => getOffsetValue(v.offset))
+  }
+
+  private _createEffectTexts(mainText: IEffectText, effects: ITextEffect[]) {
+    const baseProps = mainText.toJSON() as IEffectText
+    delete baseProps.textEffects
+
+    const group = effects.map((effect) => {
+      const offset = getOffsetValue(effect.offset)
+      const props: IUIInputData = {
+        ...baseProps,
+        ...offset,
+        visible: effect.visible,
+      }
+
+      if (isVisible(effect.fill)) {
+        props.fill = effect.fill
+      }
+      if (isVisible(effect.stroke)) {
+        props.stroke = effect.stroke
+      }
+
+      return UICreator.get('Text', props) as IText
+    })
+
+    mainText.__effectTextGroup = this.__effectTextGroup = group
+  }
+
+  _updateEffectPositions() {
+    const mainText = this.__leaf as IEffectText
+    const { __effectTextGroup: group, __baseSize, __originalOffsets, _textEffects } = this
+
+    if (!group || !__baseSize || !__originalOffsets)
+      return
+
+    const currentFontSize = mainText.fontSize || DEFAULT_FONT_SIZE
+    const scale = currentFontSize / __baseSize.fontSize
+
+    __originalOffsets.forEach((originalOffset, index) => {
+      const text = group[index]
+      const effect = _textEffects[index]
+      if (!text || !effect)
+        return
+
+      const newX = originalOffset.x * scale
+      const newY = originalOffset.y * scale
+
+      text.x = newX
+      text.y = newY
+      effect.offset = {
+        x: newX,
+        y: newY,
+        visible: true,
+      }
+      text.__updateLocalMatrix()
+      text.__updateWorldMatrix()
+    })
+  }
 }
+
+// ==================== Main Class ====================
 
 @registerUI()
 export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TConstructorData> implements IEffectText {
@@ -105,46 +224,96 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
 
   constructor(data?: TConstructorData) {
     super(data)
+    this.__updateBoxBounds()
   }
 
-  // 让每个特效元素都执行某函数
-  protected _runEffectGroupAction(fun: (text: Text) => void): void {
-    const group = this.__effectTextGroup || []
-    if (group && group.length) {
-      group.forEach(fun)
-    }
+  protected _forEachEffect(callback: (text: Text) => void): void {
+    this.__effectTextGroup?.forEach(callback)
+  }
+
+  protected _syncEffectProperties(): IUIInputData {
+    const data = this.toJSON()
+    return Object.keys(data).reduce((props, key) => {
+      if (!IGNORE_SYNC_KEYS.includes(key)) {
+        props[key] = data[key]
+      }
+      return props
+    }, {} as IUIInputData)
+  }
+
+  protected _updateEffectText(text: Text): void {
+    text.__onUpdateSize()
+    text.__updateChange()
+    text.__updateLocalMatrix()
+    text.__updateWorldMatrix()
+    text.__updateLocalBounds()
+    text.__updateWorldBounds()
   }
 
   override __updateChange(): void {
+    const syncProps = this._syncEffectProperties()
+
     super.__updateChange()
-    this._runEffectGroupAction((text) => {
-      text.__onUpdateSize()
-      text.__updateChange()
+
+    this._forEachEffect((text) => {
+      text.set(syncProps)
+      text.parent = this as any
+      this._updateEffectText(text)
     })
+
+    this.__._updateEffectPositions()
   }
 
   override __draw(canvas: ILeaferCanvas, options: IRenderOptions, originCanvas?: ILeaferCanvas): void {
-    this._runEffectGroupAction((text) => {
-      options = { ...options, shape: true }
-      text.__nowWorld = this.__nowWorld
+    if (this.textEditing && !options.exporting)
+      return
+
+    super.__draw(canvas, options, originCanvas)
+
+    this._forEachEffect((text) => {
+      text.__updateWorldMatrix()
+      canvas.setWorld(text.__nowWorld = text.__getNowWorld(options))
       text.__draw(canvas, options, originCanvas)
     })
-    super.__draw(canvas, options, originCanvas)
   }
 
-  override __drawShape(canvas: ILeaferCanvas, options: IRenderOptions): void {
-    if (options.shape) {
-      this._runEffectGroupAction((text) => {
-        text.__drawShape(canvas, options)
-      })
+  override __render(canvas: ILeaferCanvas, options: IRenderOptions) {
+    super.__render(canvas, options)
+    this._forEachEffect(text => text.__render(canvas, options))
+  }
+
+  override __updateRenderSpread(): IFourNumber {
+    if (!this.textEffects?.length) {
+      return [0, 0, 0, 0]
     }
-    super.__drawShape(canvas, options)
+
+    let top = 0
+    let right = 0
+    let bottom = 0
+    let left = 0
+
+    this.textEffects.forEach((effect) => {
+      if (!effect.visible)
+        return
+
+      const { x: offsetX, y: offsetY } = getOffsetValue(effect.offset)
+      const strokeWidth = getStrokeWidth(effect.stroke)
+      const strokeSpread = strokeWidth / 2
+
+      const horizontalSpread = calculateDirectionSpread(offsetX, strokeSpread)
+      const verticalSpread = calculateDirectionSpread(offsetY, strokeSpread)
+
+      right = Math.max(right, horizontalSpread.positive)
+      left = Math.max(left, horizontalSpread.negative)
+      bottom = Math.max(bottom, verticalSpread.positive)
+      top = Math.max(top, verticalSpread.negative)
+    })
+
+    return [top, right, bottom, left]
   }
 
   override destroy(): void {
-    this._runEffectGroupAction((text) => {
-      text.destroy()
-    })
+    this._forEachEffect(text => text.destroy())
     this.textEffects = this.__effectTextGroup = null
     super.destroy()
   }

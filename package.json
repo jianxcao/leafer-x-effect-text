@@ -31,6 +31,7 @@
   "scripts": {
     "build": "unbuild",
     "dev": "pnpm run -C playground dev",
+    "doc": "pnpm run -C playground build",
     "lint": "eslint",
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
