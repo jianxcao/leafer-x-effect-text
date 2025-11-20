@@ -16,6 +16,7 @@ import type {
 import {
   boundsType,
   dataProcessor,
+  Debug,
   FourNumberHelper,
   registerUI,
   Text,
@@ -122,6 +123,39 @@ function omitKeys(obj: any, keys: string[]) {
     }
   }
   return newObj
+}
+
+/**
+ * 将特效配置从一个 fontSize 基准标准化到另一个 fontSize 基准
+ * 用于创建固定尺寸的预览文字，保持特效比例一致
+ *
+ * @param effects - 源特效配置
+ * @param sourceFontSize - 源文字的 fontSize
+ * @param targetFontSize - 目标文字的 fontSize
+ * @returns 标准化后的特效配置（深拷贝）
+ */
+export function normalizeTextEffects(
+  effects: ITextEffect[] | undefined,
+  sourceFontSize: number,
+  targetFontSize: number,
+): ITextEffect[] | undefined {
+  if (!effects?.length)
+    return effects
+  if (sourceFontSize === targetFontSize)
+    return effects
+
+  const scale = targetFontSize / sourceFontSize
+
+  return effects.map((effect) => {
+    const clonedEffect = JSON.parse(JSON.stringify(effect))
+
+    if (clonedEffect.offset && isVisible(clonedEffect.offset)) {
+      clonedEffect.offset.x = (clonedEffect.offset.x || 0) * scale
+      clonedEffect.offset.y = (clonedEffect.offset.y || 0) * scale
+    }
+
+    return clonedEffect
+  })
 }
 
 // ==================== Data Class ====================
@@ -231,6 +265,7 @@ export class EffectTextData extends TextData implements IEffectTextData {
 }
 
 // ==================== Main Class ====================
+const console = Debug.get('EffectText')
 
 @registerUI()
 export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TConstructorData> implements IEffectText {
@@ -248,6 +283,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
 
   constructor(data?: TConstructorData) {
     super(data)
+    this.__updateChange()
   }
 
   protected _forEachEffect(callback: (text: Text) => void): void {
@@ -265,6 +301,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
   }
 
   override __updateChange(): void {
+    console.log('__updateChange')
     const syncProps = omitKeys(this.toJSON(), IGNORE_SYNC_KEYS)
 
     super.__updateChange()
@@ -279,13 +316,15 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
   }
 
   override __updateBoxBounds() {
-    super.__updateBoxBounds()
+    console.log('__updateBoxBounds')
     this._forEachEffect((text) => {
       text.__updateBoxBounds()
     })
+    super.__updateBoxBounds()
   }
 
   override __draw(canvas: ILeaferCanvas, options: IRenderOptions, originCanvas?: ILeaferCanvas): void {
+    console.log('__draw')
     if (this.textEditing && !options.exporting)
       return
 
@@ -302,6 +341,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
   }
 
   override __updateRenderSpread(): IFourNumber {
+    console.log('__updateRenderSpread')
     const rootSpread = super.__updateRenderSpread()
     let [top, right, bottom, left] = FourNumberHelper.get(rootSpread)
 
@@ -310,7 +350,7 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
     }
 
     this.textEffects.forEach((effect) => {
-      if (!effect.visible)
+      if (!isVisible(effect))
         return
 
       const { x: offsetX, y: offsetY } = getOffsetValue(effect.offset)
