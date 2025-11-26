@@ -16,7 +16,6 @@ import type {
 } from '@leafer-ui/interface'
 import {
   boundsType,
-  DataHelper,
   dataProcessor,
   dataType,
   Debug,
@@ -72,6 +71,7 @@ export interface IEffectText extends IEffectTextAttrData, ITextStyleAttrData, IU
 
 export interface IEffectTextInputData extends IEffectTextAttrData, ITextInputData {
   textEffects?: ITextEffect[]
+  strokeWidth?: number
 }
 
 interface StrokeRatioItem {
@@ -231,13 +231,12 @@ export function normalizeTextEffects(
 
 /**
  * 按指定 fontSize 标准化输出新比例的阴影、描边和特效文字数据
- * @param ui - 源文字
+ * @param data 特效文字数据
  * @param fontSize - 目标文字的 fontSize
- * @returns 标准化后的文字配置（深拷贝）
+ * @returns 标准化后的文字配置
  */
-export function normalizeTextData(ui: IEffectText, fontSize: number) {
-  const data = DataHelper.clone(ui.toJSON())
-  const sourceFontSize = ui.fontSize || DEFAULT_FONT_SIZE
+export function normalizeTextData(data: IEffectTextInputData, fontSize: number) {
+  const sourceFontSize = data.fontSize || DEFAULT_FONT_SIZE
 
   if (sourceFontSize === fontSize) {
     return data
