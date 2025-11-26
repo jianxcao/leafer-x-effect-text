@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted} from 'vue'
 import '@leafer-in/editor'
-import {TextEditor} from '@leafer-in/text-editor'
+import '@leafer-in/text-editor'
 import '@leafer-in/export'
 import '@leafer-in/view'
 import '@leafer-in/viewport'
@@ -14,11 +14,6 @@ Debug.showBounds = 'hit'
 Debug.filter = 'EffectText'
 Debug.enable = true
 // console.log(UICreator.list);
-const load = TextEditor.prototype.onLoad
-TextEditor.prototype.onLoad = function () {
-  load.call(this)
-  this.editDom.classList.add('leafer-x-text-editor')
-}
 
 function initLeafer() {
 
@@ -603,11 +598,11 @@ function handleAddShadow() {
 </template>
 
 <style>
-.leafer-x-text-editor {
+.leafer-text-editor {
   color: transparent !important;
   caret-color: black !important;
 }
-.leafer-x-text-editor::selection {
+.leafer-text-editor::selection {
   background: rgba(0, 0, 255, 0.2) !important;
   color: transparent !important;
 }
