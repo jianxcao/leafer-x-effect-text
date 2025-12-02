@@ -29,7 +29,6 @@ import {
   Text,
   TextData,
   tryToNumber,
-  UICreator,
 } from '@leafer-ui/core'
 
 // ==================== Types ====================
@@ -382,7 +381,7 @@ export class EffectTextData extends TextData implements IEffectTextData {
         text.set(inputData)
       }
       else {
-        text = UICreator.get('Text', inputData) as IText
+        text = new Text(inputData) as IText
       }
       return text
     })
@@ -633,9 +632,6 @@ export class EffectText<TConstructorData = IEffectTextInputData> extends Text<TC
   }
 
   protected _updateEffectText(text: Text): void {
-    text.__updateWorldOpacity()
-    text.__onUpdateSize()
-    text.__updateChange()
     text.__updateLocalMatrix()
     text.__updateWorldMatrix()
     text.__updateLocalBounds()
