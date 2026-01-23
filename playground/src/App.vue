@@ -550,6 +550,114 @@ function initLeafer() {
         }
       ]
     },
+    {
+      "tag": "EffectText",
+      "textEffects": [
+        {
+          "offset": {
+            "x": 7.9585732966493465e-16,
+            "y": 12.997336541752958
+          },
+          "stroke": {
+            "type": "solid",
+            "color": "#000000ff",
+            "style": {
+              "strokeWidth": 1.8653194714450871,
+              "strokeJoin": "round",
+              "strokeAlign": "outside"
+            }
+          },
+          "fill": {
+            "type": "solid",
+            "color": "#7caaffff"
+          }
+        },
+        {
+          "offset": {
+            "x": 5.305715531099563e-16,
+            "y": 8.664891027835305
+          },
+          "stroke": {
+            "type": "solid",
+            "color": "#000000ff",
+            "style": {
+              "strokeWidth": 1.8653194714450871,
+              "strokeJoin": "round",
+              "strokeAlign": "outside"
+            }
+          },
+          "fill": {
+            "type": "solid",
+            "color": "#93b9ffff"
+          }
+        },
+        {
+          "offset": {
+            "x": 2.6528577655497815e-16,
+            "y": 4.332445513917652
+          },
+          "stroke": {
+            "type": "solid",
+            "color": "#000000ff",
+            "style": {
+              "strokeWidth": 1.7048341983094855,
+              "strokeJoin": "round",
+              "strokeAlign": "outside"
+            }
+          },
+          "fill": {
+            "type": "solid",
+            "color": "#b9d2ffff"
+          }
+        },
+        {
+          "offset": {
+            "x": -3.8072625334874395e-20,
+            "y": 0.0006217731571483641
+          },
+          "stroke": {
+            "type": "solid",
+            "color": "#000000ff",
+            "style": {
+              "strokeWidth": 1.8653194714450871,
+              "strokeJoin": "round",
+              "strokeAlign": "outside"
+            }
+          },
+          "fill": {
+            "type": "solid",
+            "color": "#ffffffff"
+          }
+        }
+      ],
+      "width": 700.1056269151469,
+      "height": 134.09001596182304,
+      "boxStyle": {
+        "fill": "#32cd79",
+        "stroke": "black",
+        "cornerRadius": 10
+      },
+      "fill": {
+        "type": "solid",
+        "color": "#00000000"
+      },
+      "text": "双击编辑副标题",
+      "fontSize": 85.96609841976574,
+      "fontWeight": "bold",
+      "lineHeight": {
+        "type": "percent",
+        "value": 1.5
+      },
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "id": "uDbw2npP6q83HvnF2t8esBaOCpqJzJRi",
+      "x": 458.08693458628386,
+      "y": 451.37049398110446,
+      "scaleY": 1,
+      "editable": true,
+      "strokeWidth": 28,
+      "data": {}
+    }
   ])
 
   ;(window as any).app = leaferApp

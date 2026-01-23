@@ -115,6 +115,7 @@ export const IGNORE_SYNC_KEYS = [
   'shadow',
   'innerShadow',
   'visible',
+  'boxStyle',
 ]
 
 // ==================== Helper Functions ====================
