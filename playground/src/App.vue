@@ -1,722 +1,957 @@
 <script setup lang="ts">
-import {onMounted} from 'vue'
-import '@leafer-in/editor'
-import '@leafer-in/text-editor'
-import '@leafer-in/export'
-import '@leafer-in/view'
-import '@leafer-in/viewport'
-import {App, Debug} from "leafer-ui";
-import "@lx/effect-text"
-import {EffectText} from "@lx/effect-text"
+import { onMounted } from "vue";
+import "@leafer-in/editor";
+import "@leafer-in/text-editor";
+import "@leafer-in/export";
+import "@leafer-in/view";
+import "@leafer-in/viewport";
+import { App, Debug, Text, Filter } from "leafer-ui";
+import "@lx/effect-text";
+import { EffectText } from "@lx/effect-text";
+import '@leafer-in/filter'  // 导入滤镜插件  //
 
-let leaferApp: App
-Debug.showBounds = 'hit'
-Debug.filter = 'EffectText'
-Debug.enable = true
+// 注册自定义滤镜
+Filter.register('blur', {
+    apply(filter, _ui, worldBounds, currentCanvas, _orginCanvas, _shape) { // 应用自定义滤镜
+        currentCanvas.filter = `blur(${filter.blur}px)`
+        currentCanvas.resetTransform()
+        // currentCanvas.clipWorld(worldBounds) // 某些svg滤镜需要裁剪区域再应用，否则会污染画布
+        currentCanvas.copyWorld(currentCanvas, worldBounds, worldBounds, "copy")
+        currentCanvas.filter = 'none'
+    },
+    getSpread(filter) { // 扩展元素的渲染边界
+        return filter.blur
+    }
+})
+
+
+let leaferApp: App;
+Debug.showBounds = "hit";
+Debug.filter = "EffectText";
+Debug.enable = true;
 // console.log(UICreator.list);
 
 function initLeafer() {
-
   leaferApp = new App({
-    view: 'leafer-app',
+    view: "leafer-app",
     width: 1200,
     height: 600,
     editor: {
-      editSize: 'size',
+      editSize: "size",
       point: {
-        editConfig: {editSize: 'font-size'},
-      }
+        editConfig: { editSize: "font-size" },
+      },
     },
-  })
+  });
 
+  // leaferApp.zoom({x: 0, y: 0, width:600, height: 400}, [0, 0, 0, 0])
+  leaferApp.zoom(5)
+  leaferApp.zoomLayer.x = 0;
+  leaferApp.zoomLayer.y = 0;
+  // leaferApp.x = 100
+  // leaferApp.y = 100
+  // leaferApp.tree.move(30, 0)
+  console.debug(leaferApp, leaferApp.x, leaferApp.y)
   leaferApp.tree.add([
     {
-      "tag": "EffectText",
-      "textEffects": [
+      tag: "EffectText",
+      id: "ART1",
+      width: 300,
+      x: 10,
+      y: 10,
+      fontSize: 40,
+      fontWeight: 900,
+      text: "Shopee",
+      editable: true,
+      shadow: [
         {
-          "offset": {
-            "x": 0,
-            "y": 0,
-            "visible": false
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ffffff"
-          }
+          x: 6,
+          y: 0,
+          blur: 4,
+          color: '#000',
         },
-        {
-          "offset": {
-            "x": 3.537972978430056,
-            "y": 5.052749057052346,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ff5e04"
-          }
-        },
-        {
-          "offset": {
-            "x": 7.075945956860116,
-            "y": 10.105498114104693,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#dc0000"
-          }
-        },
-        {
-          "offset": {
-            "x": 10.613918935290172,
-            "y": 15.15824717115704,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#8145ff"
-          }
-        },
-        {
-          "offset": {
-            "x": 14.151891913720224,
-            "y": 20.210996228209385,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#348fff"
-          }
-        },
-        {
-          "offset": {
-            "x": 17.689864892150286,
-            "y": 25.263745285261734,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#50d777"
-          }
-        },
-        {
-          "offset": {
-            "x": 21.227837870580345,
-            "y": 30.31649434231408,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 2.0560892174126377,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ffc83d"
-          }
-        }
       ],
-      "width": 600,
-      "height": 215.1707779272391,
-      "fill": {
-        "type": "solid",
-        "color": "#000"
-      },
-      "text": "ABC",
-      "fontSize": 97.87429373657935,
-      "fontWeight": 400,
-      "italic": false,
-      "textDecoration": "under",
-      "letterSpacing": 6.919274268088775,
-      "lineHeight": {
-        "type": "percent",
-        "value": 1.5
-      },
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "id": "uZVMcRhGDbkLeHMjBdCoOVIL8aWqwwlF",
-      "visible": true,
-      "locked": false,
-      "x": 599.9999999999999,
-      "y": 2.9422060868672264e-14,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0,
-      "editable": true,
-      "data": {},
-      "states": {}
+      textEffects: [
+        {
+          fill: {
+            type: 'solid',
+            color: "#221f1c",
+          },
+          offset: {
+            x: 4,
+            y: 0,
+          },
+          stroke: {
+            type: "solid",
+            color: "#221f1c",
+            style: {
+              strokeWidth: 1,
+              strokeJoin: "miter",
+            },
+          },
+          filter: {
+            type: 'blur',
+            blur: 5
+          },
+        },
+        {
+          fill: "#ffffff",
+          offset: {
+            x: 0,
+            y: 0,
+          },
+          stroke: {
+            type: "solid",
+            color: "#221f1c",
+            style: {
+              strokeWidth: 1,
+              strokeJoin: "round",
+              strokeAlign: "center",
+            },
+          },
+        },
+      ],
     },
     {
-      "tag": "EffectText",
-      "textEffects": [
+      tag: "EffectText",
+      id: 'ART4',
+      width: 300,
+      x: 170,
+      y: 10,
+      fontSize: 40,
+      fontWeight: 900,
+      text: "Shopee",
+      editable: true,
+      textEffects: [
         {
-          "offset": {
-            "x": 0,
-            "y": 0,
-            "visible": false
+          fill: {
+            type: "solid",
+            color: "#c54a2a",
           },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 3.8425635840188477,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
+          stroke: {
+            type: "solid",
+            color: "#010002",
+            style: {
+              strokeWidth: 1,
+            },
           },
-          "fill": {
-            "type": "linear",
-            "from": {
-              "x": 0.49999999999999994,
-              "y": 0,
-              "type": "percent"
+          offset: {
+            x: 5,
+            y: 5,
+          },
+        },
+        {
+          fill: {
+            type: "solid",
+            color: "#fff9e5",
+          },
+          stroke: {
+            type: "solid",
+            color: "#010002",
+            style: {
+              strokeWidth: 2,
             },
-            "to": {
-              "x": 0.5,
-              "y": 1,
-              "type": "percent"
+          },
+        },
+      ],
+    },
+    {
+      tag: "EffectText",
+      id: "ART10",
+      width: 300,
+      x: 330,
+      y: 10,
+      fontSize: 40,
+      fontWeight: 900,
+      text: "Shopee",
+      editable: true,
+      shadow: [
+        {
+          x: 4,
+          y: 0,
+          blur: 4,
+        },
+      ],
+      textEffects: [
+        {
+          fill: "#221f1c",
+          offset: {
+            x: 4,
+            y: 0,
+          },
+          stroke: {
+            type: "solid",
+            color: "#221f1c",
+            style: {
+              strokeWidth: 1,
+              strokeJoin: "miter",
             },
-            "stops": [
+          },
+        },
+        {
+          fill: "#ffffff",
+          offset: {
+            x: 0,
+            y: 0,
+          },
+          stroke: {
+            type: "solid",
+            color: "#221f1c",
+            style: {
+              strokeWidth: 1,
+              strokeJoin: "round",
+              strokeAlign: "center",
+            },
+          },
+        },
+      ],
+    },
+    {
+      tag: "EffectText",
+      id: "ART11",
+      width: 300,
+      x: 10,
+      y: 100,
+      fontSize: 40,
+      fontWeight: 900,
+      text: "Shopee",
+      editable: true,
+      shadow: [
+        {
+          x: 0,
+          y: 0,
+          blur: 4,
+          color: "#bf91ff",
+        },
+      ],
+      textEffects: [
+        {
+          fill: {
+            type: "linear",
+            from: {
+              x: 0.5,
+              y: 0,
+              type: "percent",
+            },
+            to: {
+              x: 0.5,
+              y: 1,
+              type: "percent",
+            },
+            stops: [
               {
-                "offset": 0.42857142857142855,
-                "color": "#ffffffff"
+                offset: 0.3,
+                color: "#cba7f6",
               },
               {
-                "offset": 0.9846938775510204,
-                "color": "#ffe197ff"
-              }
-            ]
-          }
+                offset: 0.5,
+                color: "#fdc9be",
+              },
+              {
+                offset: 0.75,
+                color: "#ffffff",
+              },
+            ],
+          },
+            stroke: {
+            type: "solid",
+            color: "#9366eb",
+            style: {
+              strokeWidth: 3,
+            },
+      },
         },
-        {
-          "offset": {
-            "x": 0,
-            "y": 15.37025433607539,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000",
-            "style": {
-              "strokeWidth": 3.8425635840188477,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#e48e4a"
-          }
-        }
       ],
-      "width": 600,
-      "height": 139.8761622653169,
-      "fill": {
-        "type": "solid",
-        "color": "#000"
-      },
-      "text": "ABC",
-      "fontSize": 112.78929824561591,
-      "fontWeight": 400,
-      "italic": false,
-      "textDecoration": "under",
-      "letterSpacing": 6.824935064935066,
-      "lineHeight": {
-        "type": "percent",
-        "value": 1.5
-      },
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "id": "uvY8JyYHdr4vvi4czhFgpJ69AigL0R9O",
-      "visible": true,
-      "locked": false,
-      "x": 6.394884621840902e-14,
-      "y": 252.1693135956547,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0,
-      "editable": true,
-      "data": {},
-      "states": {}
     },
-    {
-      "tag": "EffectText",
-      "textEffects": [
-        {
-          "offset": {
-            "x": 0,
-            "y": 0,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ffffff"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 3.3090695520784172,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#f20000"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 6.792300659529384,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ff7700"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 10.275531766980349,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#fff600"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 13.758762874431318,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#2eff22"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 17.241993981882285,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#00d5d5"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 20.72522508933325,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#005ad5"
-          }
-        },
-        {
-          "offset": {
-            "x": 0,
-            "y": 24.208456196784212,
-            "visible": true
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#8c00e0"
-          }
-        }
-      ],
-      "width": 600,
-      "height": 221.4112161462067,
-      "fill": {
-        "type": "solid",
-        "color": "#000"
-      },
-      "text": "ABC",
-      "fontSize": 96.35625533201065,
-      "fontWeight": 400,
-      "italic": false,
-      "textDecoration": "under",
-      "letterSpacing": 6.81495064720368,
-      "lineHeight": {
-        "type": "percent",
-        "value": 1.5
-      },
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "id": "uXZhaVH7y4mwWgCgjPlKcqIwNmFCdRa1",
-      "visible": true,
-      "locked": false,
-      "x": -5.684341886080802e-14,
-      "y": 2.932356633951227e-14,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0,
-      "editable": true,
-      "data": {},
-      "states": {}
-    },
-    {
-      "tag": "EffectText",
-      "textEffects": [
-        {
-          "offset": {
-            "x": 0,
-            "y": 0,
-            "visible": false
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000",
-            "visible": false
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#000000"
-          }
-        }
-      ],
-      "width": 598.6311973481079,
-      "height": 152.62193046362552,
-      "fill": {
-        "type": "solid",
-        "color": "#000"
-      },
-      "text": "ABC",
-      "fontSize": 118.04283487778547,
-      "fontWeight": 400,
-      "italic": false,
-      "textDecoration": "under",
-      "letterSpacing": 6.919190488236782,
-      "lineHeight": {
-        "type": "percent",
-        "value": 1.5
-      },
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "id": "upZJUT6pdjPFvDKGP4ZV5mEwPSio5FEb",
-      "visible": true,
-      "locked": false,
-      "x": 599.9999999999999,
-      "y": 252.16931359565467,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0,
-      "editable": true,
-      "shadow": [
-        {
-          "x": 12.838601627598841,
-          "y": 13.294761172059543,
-          "blur": 2.310236616582426,
-          "color": "#0000004e"
-        }
-      ],
-      "data": {},
-      "states": {}
-    },
-    {
-      "tag": "EffectText",
-      "width": 221.13812997777134,
-      "height": 56.37950117841487,
-      "fill": {
-        "type": "solid",
-        "color": "#000"
-      },
-      "text": "普通字-无特效",
-      "fontSize": 22.164377428780533,
-      "fontWeight": 400,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "x": 136.9999999999999,
-      "y": 469.16931359565467,
-      "editable": true,
-      "shadow": [
-        {
-          "x": 4.742660202197613,
-          "y": 4.911168407383739,
-          "blur": 0.8534159386620306,
-          "color": "#0000004e"
-        }
-      ]
-    },
-    {
-      "tag": "EffectText",
-      "textEffects": [
-        {
-          "offset": {
-            "x": 7.9585732966493465e-16,
-            "y": 12.997336541752958
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000ff",
-            "style": {
-              "strokeWidth": 1.8653194714450871,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#7caaffff"
-          }
-        },
-        {
-          "offset": {
-            "x": 5.305715531099563e-16,
-            "y": 8.664891027835305
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000ff",
-            "style": {
-              "strokeWidth": 1.8653194714450871,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#93b9ffff"
-          }
-        },
-        {
-          "offset": {
-            "x": 2.6528577655497815e-16,
-            "y": 4.332445513917652
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000ff",
-            "style": {
-              "strokeWidth": 1.7048341983094855,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#b9d2ffff"
-          }
-        },
-        {
-          "offset": {
-            "x": -3.8072625334874395e-20,
-            "y": 0.0006217731571483641
-          },
-          "stroke": {
-            "type": "solid",
-            "color": "#000000ff",
-            "style": {
-              "strokeWidth": 1.8653194714450871,
-              "strokeJoin": "round",
-              "strokeAlign": "outside"
-            }
-          },
-          "fill": {
-            "type": "solid",
-            "color": "#ffffffff"
-          }
-        }
-      ],
-      "width": 700.1056269151469,
-      "height": 134.09001596182304,
-      "boxStyle": {
-        "fill": "#32cd79",
-        "stroke": "black",
-        "cornerRadius": 10
-      },
-      "fill": {
-        "type": "solid",
-        "color": "#00000000"
-      },
-      "text": "双击编辑副标题",
-      "fontSize": 85.96609841976574,
-      "fontWeight": "bold",
-      "lineHeight": {
-        "type": "percent",
-        "value": 1.5
-      },
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "id": "uDbw2npP6q83HvnF2t8esBaOCpqJzJRi",
-      "x": 458.08693458628386,
-      "y": 451.37049398110446,
-      "scaleY": 1,
-      "editable": true,
-      "strokeWidth": 28,
-      "data": {}
-    }
-  ])
+  ]);
 
-  ;(window as any).app = leaferApp
+  var other = [
+    {
+      tag: "EffectText",
+      textEffects: [
+        {
+          offset: {
+            x: 0,
+            y: 0,
+            visible: false,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#ffffff",
+          },
+        },
+        {
+          offset: {
+            x: 3.537972978430056,
+            y: 5.052749057052346,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#ff5e04",
+          },
+        },
+        {
+          offset: {
+            x: 7.075945956860116,
+            y: 10.105498114104693,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#dc0000",
+          },
+        },
+        {
+          offset: {
+            x: 10.613918935290172,
+            y: 15.15824717115704,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#8145ff",
+          },
+        },
+        {
+          offset: {
+            x: 14.151891913720224,
+            y: 20.210996228209385,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#348fff",
+          },
+        },
+        {
+          offset: {
+            x: 17.689864892150286,
+            y: 25.263745285261734,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#50d777",
+          },
+        },
+        {
+          offset: {
+            x: 21.227837870580345,
+            y: 30.31649434231408,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 2.0560892174126377,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#ffc83d",
+          },
+        },
+      ],
+      width: 600,
+      height: 215.1707779272391,
+      fill: {
+        type: "solid",
+        color: "#000",
+      },
+      text: "ABC",
+      fontSize: 97.87429373657935,
+      fontWeight: 400,
+      italic: false,
+      textDecoration: "under",
+      letterSpacing: 6.919274268088775,
+      lineHeight: {
+        type: "percent",
+        value: 1.5,
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+      id: "uZVMcRhGDbkLeHMjBdCoOVIL8aWqwwlF",
+      visible: true,
+      locked: false,
+      x: 599.9999999999999,
+      y: 2.9422060868672264e-14,
+      scaleX: 1,
+      scaleY: 1,
+      rotation: 0,
+      skewX: 0,
+      skewY: 0,
+      editable: true,
+      data: {},
+      states: {},
+    },
+    {
+      tag: "EffectText",
+      textEffects: [
+        {
+          offset: {
+            x: 0,
+            y: 0,
+            visible: false,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 3.8425635840188477,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "linear",
+            from: {
+              x: 0.49999999999999994,
+              y: 0,
+              type: "percent",
+            },
+            to: {
+              x: 0.5,
+              y: 1,
+              type: "percent",
+            },
+            stops: [
+              {
+                offset: 0.42857142857142855,
+                color: "#ffffffff",
+              },
+              {
+                offset: 0.9846938775510204,
+                color: "#ffe197ff",
+              },
+            ],
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 15.37025433607539,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000",
+            style: {
+              strokeWidth: 3.8425635840188477,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#e48e4a",
+          },
+        },
+      ],
+      width: 600,
+      height: 139.8761622653169,
+      fill: {
+        type: "solid",
+        color: "#000",
+      },
+      text: "ABC",
+      fontSize: 112.78929824561591,
+      fontWeight: 400,
+      italic: false,
+      textDecoration: "under",
+      letterSpacing: 6.824935064935066,
+      lineHeight: {
+        type: "percent",
+        value: 1.5,
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+      id: "uvY8JyYHdr4vvi4czhFgpJ69AigL0R9O",
+      visible: true,
+      locked: false,
+      x: 6.394884621840902e-14,
+      y: 252.1693135956547,
+      scaleX: 1,
+      scaleY: 1,
+      rotation: 0,
+      skewX: 0,
+      skewY: 0,
+      editable: true,
+      data: {},
+      states: {},
+    },
+    {
+      tag: "EffectText",
+      textEffects: [
+        {
+          offset: {
+            x: 0,
+            y: 0,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#ffffff",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 3.3090695520784172,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#f20000",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 6.792300659529384,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#ff7700",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 10.275531766980349,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#fff600",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 13.758762874431318,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#2eff22",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 17.241993981882285,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#00d5d5",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 20.72522508933325,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#005ad5",
+          },
+        },
+        {
+          offset: {
+            x: 0,
+            y: 24.208456196784212,
+            visible: true,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#8c00e0",
+          },
+        },
+      ],
+      width: 600,
+      height: 221.4112161462067,
+      fill: {
+        type: "solid",
+        color: "#000",
+      },
+      text: "ABC",
+      fontSize: 96.35625533201065,
+      fontWeight: 400,
+      italic: false,
+      textDecoration: "under",
+      letterSpacing: 6.81495064720368,
+      lineHeight: {
+        type: "percent",
+        value: 1.5,
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+      id: "uXZhaVH7y4mwWgCgjPlKcqIwNmFCdRa1",
+      visible: true,
+      locked: false,
+      x: -5.684341886080802e-14,
+      y: 2.932356633951227e-14,
+      scaleX: 1,
+      scaleY: 1,
+      rotation: 0,
+      skewX: 0,
+      skewY: 0,
+      editable: true,
+      data: {},
+      states: {},
+    },
+    {
+      tag: "EffectText",
+      textEffects: [
+        {
+          offset: {
+            x: 0,
+            y: 0,
+            visible: false,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000",
+            visible: false,
+          },
+          fill: {
+            type: "solid",
+            color: "#000000",
+          },
+        },
+      ],
+      width: 598.6311973481079,
+      height: 152.62193046362552,
+      fill: {
+        type: "solid",
+        color: "#000",
+      },
+      text: "ABC",
+      fontSize: 118.04283487778547,
+      fontWeight: 400,
+      italic: false,
+      textDecoration: "under",
+      letterSpacing: 6.919190488236782,
+      lineHeight: {
+        type: "percent",
+        value: 1.5,
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+      id: "upZJUT6pdjPFvDKGP4ZV5mEwPSio5FEb",
+      visible: true,
+      locked: false,
+      x: 599.9999999999999,
+      y: 252.16931359565467,
+      scaleX: 1,
+      scaleY: 1,
+      rotation: 0,
+      skewX: 0,
+      skewY: 0,
+      editable: true,
+      shadow: [
+        {
+          x: 12.838601627598841,
+          y: 13.294761172059543,
+          blur: 2.310236616582426,
+          color: "#0000004e",
+        },
+      ],
+      data: {},
+      states: {},
+    },
+    {
+      tag: "EffectText",
+      width: 221.13812997777134,
+      height: 56.37950117841487,
+      fill: {
+        type: "solid",
+        color: "#000",
+      },
+      text: "普通字-无特效",
+      fontSize: 22.164377428780533,
+      fontWeight: 400,
+      textAlign: "center",
+      verticalAlign: "middle",
+      x: 136.9999999999999,
+      y: 469.16931359565467,
+      editable: true,
+      shadow: [
+        {
+          x: 4.742660202197613,
+          y: 4.911168407383739,
+          blur: 0.8534159386620306,
+          color: "#0000004e",
+        },
+      ],
+    },
+    {
+      tag: "EffectText",
+      textEffects: [
+        {
+          offset: {
+            x: 7.9585732966493465e-16,
+            y: 12.997336541752958,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000ff",
+            style: {
+              strokeWidth: 1.8653194714450871,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#7caaffff",
+          },
+        },
+        {
+          offset: {
+            x: 5.305715531099563e-16,
+            y: 8.664891027835305,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000ff",
+            style: {
+              strokeWidth: 1.8653194714450871,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#93b9ffff",
+          },
+        },
+        {
+          offset: {
+            x: 2.6528577655497815e-16,
+            y: 4.332445513917652,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000ff",
+            style: {
+              strokeWidth: 1.7048341983094855,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#b9d2ffff",
+          },
+        },
+        {
+          offset: {
+            x: -3.8072625334874395e-20,
+            y: 0.0006217731571483641,
+          },
+          stroke: {
+            type: "solid",
+            color: "#000000ff",
+            style: {
+              strokeWidth: 1.8653194714450871,
+              strokeJoin: "round",
+              strokeAlign: "outside",
+            },
+          },
+          fill: {
+            type: "solid",
+            color: "#ffffffff",
+          },
+        },
+      ],
+      width: 700.1056269151469,
+      height: 134.09001596182304,
+      boxStyle: {
+        fill: "#32cd79",
+        stroke: "black",
+        cornerRadius: 10,
+      },
+      fill: {
+        type: "solid",
+        color: "#00000000",
+      },
+      text: "双击编辑副标题",
+      fontSize: 85.96609841976574,
+      fontWeight: "bold",
+      lineHeight: {
+        type: "percent",
+        value: 1.5,
+      },
+      textAlign: "center",
+      verticalAlign: "middle",
+      id: "uDbw2npP6q83HvnF2t8esBaOCpqJzJRi",
+      x: 458.08693458628386,
+      y: 451.37049398110446,
+      scaleY: 1,
+      editable: true,
+      strokeWidth: 28,
+      data: {},
+    },
+  ];
+
+  (window as any).app = leaferApp;
 }
 
 onMounted(() => {
-  initLeafer()
-  handleDebug()
-})
+  initLeafer();
+  handleDebug();
+});
 
 function handleExport() {
-  leaferApp.tree.export("test.png")
+  leaferApp.tree.export("test.png");
 }
 
 function getTexts(): EffectText[] {
-  return leaferApp.tree.children as EffectText[]
+  return leaferApp.tree.children as EffectText[];
 }
 
 function handleExport2() {
-  console.log(getTexts().map(v => v.toJSON()))
+  console.log(getTexts().map((v) => v.toJSON()));
 }
 function handleDebug() {
-  Debug.enable = !Debug.enable
-  Debug.showBounds = Debug.enable ? 'hit' : false
+  Debug.enable = !Debug.enable;
+  Debug.showBounds = Debug.enable ? "hit" : false;
 }
 function getRandom(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 function handleChangeOffest() {
   getTexts().forEach((text) => {
-    const max = 200
-    const x = getRandom(-max, max)
-    const y = getRandom(-max, max)
-    text.textEffects = text.textEffects.map(v => {
-      v.offset = {visible: true, x, y}
-      return v
-    })
-  })
+    const max = 200;
+    const x = getRandom(-max, max);
+    const y = getRandom(-max, max);
+    text.textEffects = text.textEffects.map((v) => {
+      v.offset = { visible: true, x, y };
+      return v;
+    });
+  });
 }
 function handleAddShadow() {
   getTexts().forEach((text) => {
     text.set({
       shadow: [
         {
-          "x": 10,
-          "y": -10,
-          "blur": 63,
-          "color": "rgba(255, 255, 255, 1)",
-          "spread": 41
-        }
-      ]
-    })
-  })
+          x: 10,
+          y: -10,
+          blur: 63,
+          color: "rgba(255, 255, 255, 1)",
+          spread: 41,
+        },
+      ],
+    });
+  });
 }
 </script>
 
 <template>
   <NFlex justify="start">
-    <div id="leafer-app" style="background: rgb(242 235 255);"></div>
+    <div id="leafer-app" style="background: rgb(255 255 255)"></div>
     <NFlex vertical>
       <h3>window.app 可获取leafer 实例, 自行操作</h3>
       <NFlex justify="start">
