@@ -5,6 +5,7 @@ export default antfu(
   {
     type: 'lib',
     pnpm: false,
+    ignores: ['.kiro/**'],
     rules: {
       'ts/explicit-function-return-type': 'off',
       'ts/no-unused-expressions': 'off',
