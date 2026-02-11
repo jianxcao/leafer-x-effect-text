@@ -1,7 +1,7 @@
 {
-  "name": "@lx/effect-text",
+  "name": "@jianxcao/effect-text",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "exports": {
     ".": "./src/index.ts"
